@@ -39,6 +39,11 @@ const onconnect=()=>{
             const body = JSON.parse(message.body);
             showMessageFn(body.message);
         });
+        //rabbitmq구독
+        stompClient.subscribe("/topic/question", (res) => {
+            const answer = JSON.parse(res.body);
+            showMessageFn(answer.message);
+        });
     },(error)=>{
         console.error('STOMP 연결 실패:',error)
         alert("서버 연결 실패")
@@ -96,6 +101,25 @@ const disconnect=()=> {
 //예비 함수(미사용)
 const rabbitMsgSendClickFn=()=>{
     //추가 예정
+    const inputVal=question.value.trim();
+    if(inputVal.length===0){
+        alert("질문 내용을 입력해주세요");
+        question.focus();
+        return;
+    }
+    //1. 사용자의 질문 메시지 바로 표시
+    const questionHTML=questionString(inputVal);
+    showMessageFn(questionHTML);
+    //2. 서버에 메시지 전송
+    stompClient.send("/app/bot", {}, JSON.stringify({
+        content: inputVal
+    }));
+
+    //입력창 초기화 및 포커스
+    question.value='';
+    question.focus();
+    //채팅창 맨 아래로 스크롤
+    chatContent.scrollTop=chatContent.scrollHeight;
 };
 
 

@@ -1,5 +1,5 @@
 server:
-  port: 8092
+  port: 8090
 
 spring:
   #  # mysql
@@ -20,11 +20,33 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+
   # 기본설정
   thymeleaf:
     prefix: classpath:templates/
     suffix: .html
     cache: false
+
+  # JSON 직렬화 설정
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+  main:
+    allow-bean-definition-overriding: true
+
+  rabbitmq:
+    host: "b-50fbbdae-8d31-4094-b3eb-9e52a40f9489.mq.ap-northeast-2.on.aws"
+    port: 5671
+    username: dev
+    password: "dydrkfl12123"
+    ssl:
+      enabled: true
+rabbitmq.queue.name: ec2.queue
+rabbitmq.exchange.name: ec2.exchange
+rabbitmq.question.routing.key: ec2.routing.#
+
+
 
 #로그 설정
 logging:

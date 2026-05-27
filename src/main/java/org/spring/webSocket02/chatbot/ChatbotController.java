@@ -2,7 +2,10 @@ package org.spring.webSocket02.chatbot;
 
 import lombok.RequiredArgsConstructor;
 import org.spring.webSocket02.entity.TestEntity;
+import org.spring.webSocket02.rabbitmq.Question;
 import org.spring.webSocket02.repository.TestRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -67,7 +70,7 @@ public class ChatbotController {
         String formattedTime = today.format(DateTimeFormatter.ofPattern("a H:mm"));
         String searchData = message.getContent().trim();
         String searchName = searchData.replace("조회이름:", "").trim();
-        String responseText = message.getContent() + "에 대한 응답입니다.";
+        String responseText = message.getContent() + "에 대한 답변내용 입니다.";
         String answerText = "답변 내용이 없습니다.";
         //조회이름:이름 -> 이름
         System.out.println("조회이름: " + searchName);
@@ -90,6 +93,20 @@ public class ChatbotController {
                     "</div>";
             return new BotMessage(firstMessage);
 
+    }
+
+    //RabbitMQ
+    private final RabbitTemplate rabbitTemplate;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+
+    @Value("${rabbitmq.question.routing.key}")
+    private String routingKey;
+
+    @MessageMapping("/bot")
+    public void rabbitChat(Question message){
+        rabbitTemplate.convertAndSend(exchange,routingKey,message);
     }
 
 
